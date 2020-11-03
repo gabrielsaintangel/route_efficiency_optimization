@@ -8,11 +8,11 @@ earth_radius_m = 6373.0 * 1000 #approx radius of the earth
 
 
 
-def get_distance_two_points(lat1,lon1,lat2,lon2):
-    lat1 = radians(lat1) #convert cartesian coordinates to radians
-    lon1 = radians(lon1)
-    lat2 = radians(lat2)
-    lon2 = radians(lon2)
+def get_distance_two_points(prev_coordinates,current_coordinates):
+    lat1 = radians(prev_coordinates[0]) #convert cartesian coordinates to radians
+    lon1 = radians(prev_coordinates[1])
+    lat2 = radians(current_coordinates[0])
+    lon2 = radians(current_coordinates[1])
 
     dlon = lon2 - lon1 #get distance between the two lat lon points
     dlat = lat2 - lat1
@@ -25,28 +25,44 @@ def get_distance_two_points(lat1,lon1,lat2,lon2):
     return distance
 
 if __name__ == "__main__":
-    #parsing an existing route file#
-    #open gpx file
-    gpx_file = open('ASC2020 route.gpx')
+    gpx_file = open('ASC2020 route.gpx')#open gpx file
 
-    #pass file into gpxpy
-    gpx = gpxpy.parse(gpx_file)
+    
+    gpx = gpxpy.parse(gpx_file) #pass file into gpxpy
 
-    prev_lat, prev_lon, current_lat, current_lon = 0,0,0,0
-    prev_elevation, current_elevation = 0,0
+    prev_coordinates, current_coordinates = [0,0],[0,0] #pairs of lat and lon coordinates
+    prev_elevation, current_elevation = 0,0 #compare the difference in elevation over two coordinates
+    starting_coordinates, ending_coordinates = [0,0],[0,0] #pairs of lat and lon coordinates for perfoming summaries
+    current_distance = 0
+    elevation_difference = 0
+
     for track in gpx.tracks:
         for segment in track.segments:
             for point in segment.points:
-                current_lat = float(point.latitude)
-                current_lon = float(point.longitude)
+                if starting_coordinates == [0,0]: #get starting coordinates for 1000m section
+                    starting_coordinates = [point.latitude, point.longitude]
+
+                current_coordinates = [float(point.latitude), float(point.longitude)] #current coordinates for calculations
                 current_elevation = float(point.elevation)
-                print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
+                #print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
                 
-                if prev_lat != 0:
-                    print("distance between current and previous: " + str(get_distance_two_points(prev_lat,prev_lon,current_lat,current_lon)) + " m")
+                if prev_coordinates != [0,0]:
+                    current_distance += get_distance_two_points(prev_coordinates,current_coordinates) #add the current distance to the total distance for the period
                 if prev_elevation != 0:
-                    print("difference in elevation between the two points: " + str(current_elevation - prev_elevation) + "\n\n")
-                time.sleep(1)
-                prev_lat = current_lat
-                prev_lon = current_lon
+                    elevation_difference += (current_elevation - prev_elevation)
+
+                if current_distance > 1000: #if 1000m subsection has been reached, make a decision regarding acceleration during this period
+                    ending_coordinates = current_coordinates
+                    print("Period distance =" + str(current_distance) + " meters")
+                    print("Period coordinates: " + str(starting_coordinates) + ", " + str(ending_coordinates))
+                    print("Average elevation along period: " + str(elevation_difference))
+                    if(elevation_difference > 0):
+                        print("This period is on average uphil, gain speed beforehand\n\n")
+                    else:
+                        print("This period is on average downhill, coast\n\n")
+                    starting_coordinates = [0,0]
+                    current_distance = 0
+                    elevation_difference = 0
+                    
+                prev_coordinates = current_coordinates
                 prev_elevation = current_elevation
