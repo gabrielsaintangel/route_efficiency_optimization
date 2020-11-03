@@ -2,11 +2,9 @@ import gpxpy
 import gpxpy.gpx
 from math import sin, cos, sqrt, atan2, radians
 import time
+
 #Constants
 earth_radius_m = 6373.0 * 1000 #approx radius of the earth
-
-
-
 
 def get_distance_two_points(lat1,lon1,lat2,lon2):
     lat1 = radians(lat1) #convert cartesian coordinates to radians
