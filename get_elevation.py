@@ -4,7 +4,7 @@ from math import sin, cos, sqrt, atan2, radians
 import time
 import plotly.express as px
 #Constants
-earth_radius_m = 6373.0 #approx radius of the earth
+EARTH_RADIUS_M = 6373.0 #approx radius of the earth
 
 
 def get_distance_two_points(prev_coordinates,current_coordinates):
