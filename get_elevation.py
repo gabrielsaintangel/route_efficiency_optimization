@@ -2,11 +2,14 @@ import gpxpy
 import gpxpy.gpx
 import time
 import plotly.express as px
+import openweather as weather
+
 #Constants
 
-def generate_map(periodic_points):
+def generate_graphs(periodic_points):
     elevation_data = [point.elevation for point in periodic_points]
-    print(len(elevation_data))
+    
+
 
 
 
@@ -23,4 +26,4 @@ if __name__ == "__main__":
                 points.append(point)
 
     periodic_points = points[0::20] # get every 20th point
-    generate_map(periodic_points)
+    generate_graphs(periodic_points)
