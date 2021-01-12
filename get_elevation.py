@@ -25,19 +25,28 @@ def get_distance_two_points(prev_point, curr_point) -> float:
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
     c = 2 * asin(sqrt(a)) 
     r = 6371 # Radius of earth in kilometers. Use 3956 for miles
-    return c * r
+    return (c * r) / 1000
 
 
 
 def get_weather(points):
-    weather = [] 
+    forecasts = [] 
     for point in points:
         response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat" + 
-                        point.latitude + "&lon=" + point.longitude + "&appid=" + WEATHER_API_KEY)
-        weather.append(response)
+                        str(point.latitude) + "&lon=" + str(point.longitude) + "&appid=" + WEATHER_API_KEY)
+        forecasts.append(response)
+        print(response.text)
+        sleep(1)
+        
+    return forecasts
 
 def generate_graphs(points, distances, weather):
     elevations = [point.elevation for point in points]
+
+    forecasts = get_weather(points)
+
+    
+
 
     
     
@@ -71,9 +80,6 @@ if __name__ == "__main__":
     # lets shorten the lists to every 50th element in order to expedite pulling weather data
     points = points[0::200]
     distances = distances[0::200]
-    print(distances[5])
-
-    print(len(points))
-
-
+    
+    get_weather(points)
      
